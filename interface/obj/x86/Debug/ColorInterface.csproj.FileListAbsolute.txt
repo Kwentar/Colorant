@@ -1,0 +1,13 @@
+D:\Education\projects\MainColorMode\interface\bin\Debug\ColorInterface.exe
+D:\Education\projects\MainColorMode\interface\bin\Debug\ColorInterface.pdb
+D:\Education\projects\MainColorMode\interface\obj\x86\Debug\ResolveAssemblyReference.cache
+D:\Education\projects\MainColorMode\interface\obj\x86\Debug\MainWindow.baml
+D:\Education\projects\MainColorMode\interface\obj\x86\Debug\MainWindow.g.cs
+D:\Education\projects\MainColorMode\interface\obj\x86\Debug\App.g.cs
+D:\Education\projects\MainColorMode\interface\obj\x86\Debug\ColorInterface_MarkupCompile.cache
+D:\Education\projects\MainColorMode\interface\obj\x86\Debug\ColorInterface.g.resources
+D:\Education\projects\MainColorMode\interface\obj\x86\Debug\ColorInterface.Properties.Resources.resources
+D:\Education\projects\MainColorMode\interface\obj\x86\Debug\GenerateResource.read.1.tlog
+D:\Education\projects\MainColorMode\interface\obj\x86\Debug\GenerateResource.write.1.tlog
+D:\Education\projects\MainColorMode\interface\obj\x86\Debug\ColorInterface.exe
+D:\Education\projects\MainColorMode\interface\obj\x86\Debug\ColorInterface.pdb
