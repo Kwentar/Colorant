@@ -12,7 +12,7 @@
                 <MenuItem Header="_Выход"/>
             </MenuItem>
             <MenuItem Name="Parameters" Header="_Параметры"/>
-            <MenuItem Name="Help" Header="П_омощь"/>
+            <MenuItem Name="Help" Header="П_омощь" /> 
         </Menu>
         <StatusBar DockPanel.Dock="Bottom" HorizontalAlignment="Stretch" VerticalAlignment="Bottom">
             <StatusBarItem HorizontalAlignment="Left">
@@ -25,17 +25,11 @@
         <DockPanel DockPanel.Dock="Bottom">
             <DockPanel DockPanel.Dock="Top" VerticalAlignment="Stretch" HorizontalAlignment="Center">
                 <Image Name="sourceImg" Margin="10" Width="300" Height="300" Stretch="Uniform" />
-                <Image Name="resultImg" Margin="10" Width="300" Height="300" Stretch="None" />
+                <Image Name="resultImg" Margin="10" Width="300" Height="300" Stretch="Uniform" />
             </DockPanel>
             <DockPanel Height="60" DockPanel.Dock="Bottom" HorizontalAlignment="Right" VerticalAlignment="Bottom">
-                <Button Name="pbtAddImage" Height="40" Width="150" Margin="5" DockPanel.Dock="Left" Content="Добавить изображение" Click="pbtAddImage_Click" />
-                <Button Name="pbtAddCatalog" Height="40"   Width="150" Margin="5"    Click="pbtAddCatalog_Click" >
-                    <TextBlock Text="Добавить папку с изображениями"
-                       TextWrapping="Wrap"
-                       TextAlignment="Center"/>
-                </Button>
                 <Button Name="pbtColorize" Height="40" Width="160" Margin="5" DockPanel.Dock="Right" Content="Раскрасить изображение"  Click="pbtColorize_Click"/>
-                <Button Name="pbtViewBase" Height="40" Width="170" Margin="5" Content="Просмотр изображений"/>
+                <Button Name="pbtViewBase" Height="40" Width="170" Margin="5" Content="Просмотр изображений" Click="pbtViewBase_Click"/>
             </DockPanel>
         </DockPanel>
 

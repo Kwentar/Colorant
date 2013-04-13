@@ -11,3 +11,5 @@ D:\Education\projects\MainColorMode\interface\obj\x86\Debug\GenerateResource.rea
 D:\Education\projects\MainColorMode\interface\obj\x86\Debug\GenerateResource.write.1.tlog
 D:\Education\projects\MainColorMode\interface\obj\x86\Debug\ColorInterface.exe
 D:\Education\projects\MainColorMode\interface\obj\x86\Debug\ColorInterface.pdb
+D:\Education\projects\MainColorMode\interface\obj\x86\Debug\ImageDataBase.baml
+D:\Education\projects\MainColorMode\interface\obj\x86\Debug\ImageDataBase.g.cs

@@ -2,9 +2,10 @@
 #include <opencv/cv.h>
 #include <opencv2/highgui/highgui.hpp>
 #include <locale.h>
+#include "Constant.h"
+#include "ImageDataBase.h"
 
-#define HIST_SIZE 128
-#define SIZE_AREA 5
+
 
 /*---Струкутура образца-------------*/
 /*---s: Стандартное отклонение------*/
@@ -24,11 +25,24 @@ struct Swatch
 /*----------------------------------*/
 int AddImageInBase(char* fileName);
 
+/*---Удалить цветное изображение---*/
+/*---Вход: имя изображения----------*/
+/*---Выход: ничего------------------*/
+/*----------------------------------*/
+int DeleteImageFromBase(char* fileName);
+
 /*---Расскрасить изображение--------*/
 /*---Вход: имя изображения----------*/
 /*---Выход: ничего------------------*/
 /*----------------------------------*/
 IplImage* ColorizeImage(char* fileName); 
+
+/*---Перенести цвет с одного--------*/
+/*----изображения на другое---------*/
+/*---Вход: имена изображений--------*/
+/*---Выход: окрашенное изображение--*/
+/*----------------------------------*/
+IplImage* SwapColor(char* fileNameTarget, char* fileNameSource); 
 
 /*---Получить сигнатуру изображения-*/
 /*---Вход: указатель на изображение-*/
@@ -77,6 +91,10 @@ int main(int argc, char* argv[])
 			IplImage* resultImg;
 			resultImg=ColorizeImage(argv[2]);
 		}
+		else if(!strcmp(argv[1],"-delete"))
+		{
+			DeleteImageFromBase(argv[2]);			
+		}
 		else
 		{
 			printf("Invalid first parameter");
@@ -95,14 +113,12 @@ int main(int argc, char* argv[])
 
 int AddImageInBase(char* fileName)
 {
-DWORD nBytesRead,nBytesWritten; //прочитано и записано байт
-	DWORD nFileSize;			//размер файла
 	DWORD nImageCount;			//количество изображений в базе
 	HANDLE hFile;				//дескриптор файла
 	double signature[HIST_SIZE];
 	char imageFileName[20],tmp[10];		//имя изображения для сохранения и промежуточная строковая переменная
 	IplImage* img;				//изображение для добавления
-	
+	ImageDataBase _db;
 	img=cvLoadImage(fileName);
 	if(!img)
 	{
@@ -110,51 +126,34 @@ DWORD nBytesRead,nBytesWritten; //прочитано и записано байт
 		return -1;
 	}
 	GetSignature(img,signature);
-	/*--------Добавляем изображение в базу---*/
-	if(CreateDirectoryA("base",NULL))//директория
-	{
-		printf("base was created");
-	}
-	hFile=CreateFileA("base\\base.dat",GENERIC_READ|GENERIC_WRITE,NULL,NULL,OPEN_ALWAYS,FILE_ATTRIBUTE_NORMAL,NULL);
-	if(hFile==INVALID_HANDLE_VALUE) //файл
-	{
-		ErrorMessage(); 
-		return -1;
-	}
-	nFileSize=GetFileSize(hFile,NULL);
-	if(!nFileSize)
-	{
-		printf("File is empty\n");
-		nImageCount=0;
-	}
-	else
-	{
- 		ReadFile(hFile,&nImageCount,sizeof(nImageCount),&nBytesRead,NULL);
-	}
-	nImageCount++;
-	printf("%d",nImageCount);
+	int number=_db.addImage(signature);
 	strcpy(imageFileName,"base\\");
-	itoa(nImageCount,tmp,10);
+	itoa(number,tmp,10);
 	strcat(imageFileName,tmp);
 	strcat(imageFileName,".png");
 	cvSaveImage(imageFileName,img);
-	SetFilePointer(hFile,0,NULL,FILE_BEGIN);
-	WriteFile(hFile,&nImageCount,sizeof(nImageCount),&nBytesWritten,NULL);
-	SetFilePointer(hFile,0,NULL,FILE_END);
-	for(int i=0;i<HIST_SIZE;i++)
-	{
-		WriteFile(hFile,&signature[i],sizeof(double),&nBytesWritten,NULL);
-	}
-	CloseHandle(hFile);
 	cvReleaseImage(&img);
-
 	return 0;
 
 }
 
+int DeleteImageFromBase(char* fileName)
+{
+	ImageDataBase _db;
+	_db.deleteImage(fileName);
+	if(!DeleteFileA(fileName))
+	{
+		ErrorMessage();
+		int i;
+		scanf("%d",&i);
+	}
+	return 0;
+}
 
 IplImage* ColorizeImage(char* fileName)
 {
+	SwapColor(fileName,"D:\\Education\\projects\\MainColorMode\\images\\очень похожий.jpg");
+	return 0;
 	IplImage *targetImage;
 	IplImage *sourceImage,*resizeSourceImage;
 	IplImage *labTarget, *labSource;
@@ -417,6 +416,12 @@ IplImage* ColorizeImage(char* fileName)
 	cvSaveImage("result.jpg",targetImage);
 }
 
+
+IplImage* SwapColor(char* fileNameTarget, char* fileNameSource)
+{
+	IplImage* targetImg,*sourceImg;
+	return targetImg;
+}
 
 int GetSwatches(IplImage* img,Swatch *swatches)
 {

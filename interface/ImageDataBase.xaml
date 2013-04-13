@@ -1,0 +1,26 @@
+﻿<Window x:Class="ColorInterface.ImageDataBase"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="База данных изображений" Height="600" Width="800" Background="#353535" >
+    <DockPanel>
+        <ToolBar Height="60" Name="imageToolbar" DockPanel.Dock="top" Background="#353535">
+            <Button Name="pbtPrevios" Margin="5" Click="pbtNext_Click">
+                <Image Source="Icons\previos.png"/>
+            </Button>
+            <Button Name="pbtNext"  Margin="5" Click="pbtNext_Click">
+                <Image Source="Icons\next.png"/>
+            </Button>
+            <Button x:Name="pbtAdd" Margin="5" Click="pbtAdd_Click">
+                <Image Source="Icons\add.png"/>
+            </Button>
+            <Button x:Name="pbtAddCatalog"   Margin="5" Click="pbtAddCatalog_Click">
+                <Image Source="Icons\addCatalog.png"/>
+            </Button>
+            <Button x:Name="pbtDelete"   Margin="5" Click="pbtDelete_Click">
+                <Image Source="Icons\remove.png"/>
+            </Button>
+            
+        </ToolBar>
+        <Image x:Name="currentImage" Stretch="Uniform"/>
+    </DockPanel>
+</Window>

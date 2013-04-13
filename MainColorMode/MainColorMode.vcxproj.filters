@@ -18,12 +18,21 @@
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ImageSignature.cpp">
+    <ClCompile Include="ImageDataBase.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ImageInDB.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ImageSignature.h">
+    <ClInclude Include="ImageDataBase.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Constant.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ImageInDB.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

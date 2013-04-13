@@ -145,11 +145,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="ImageSignature.cpp" />
+    <ClCompile Include="ImageDataBase.cpp" />
+    <ClCompile Include="ImageInDB.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ImageSignature.h" />
+    <ClInclude Include="Constant.h" />
+    <ClInclude Include="ImageDataBase.h" />
+    <ClInclude Include="ImageInDB.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

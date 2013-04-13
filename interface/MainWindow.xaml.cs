@@ -27,40 +27,6 @@ namespace ColorInterface
             InitializeComponent();
         }
 
-        private void pbtAddImage_Click(object sender, RoutedEventArgs e)
-        {
-            OpenFileDialog addImageDialog = new OpenFileDialog();
-            addImageDialog.FileName = "Изображение";
-            addImageDialog.Filter = "Файлы изображений|*.jpg;*.bmp;*.png;*.jpeg";
-            addImageDialog.DefaultExt = ".jpg";
-            Nullable<bool> resultDialog=addImageDialog.ShowDialog();
-            if (resultDialog==true)
-            {
-                string imageFileName=addImageDialog.FileName;
-                Uri uriImage = new Uri(imageFileName);
-                BitmapImage addsImage;
-                try
-                {
-                    addsImage = new BitmapImage(uriImage);
-                    Process pro = Process.Start("..\\..\\..\\x64\\Debug\\MainColorMode.exe", "-add \"" + imageFileName + "\"");
-                    pro.WaitForExit();
-                    lbStatusLeft.Content = "Изображение успешно добавлено";
-                }
-                catch 
-                {
-                    string path = Environment.CurrentDirectory;
-                    addsImage = new BitmapImage(new Uri(string.Format("{0}\\errorOpen.png",path)));
-                    lbStatusLeft.Content = "Не удалось открыть изображение";
-                }
-                sourceImg.Source = addsImage;
-            }
-        }
-
-        private void pbtAddCatalog_Click(object sender, RoutedEventArgs e)
-        {
-
-        }
-
         private void pbtColorize_Click(object sender, RoutedEventArgs e)
         {
             OpenFileDialog colorizeImageDialog = new OpenFileDialog();
@@ -89,6 +55,12 @@ namespace ColorInterface
                 }
                 resultImg.Source = colorizeImage;
             }
+        }
+
+        private void pbtViewBase_Click(object sender, RoutedEventArgs e)
+        {
+            ImageDataBase imageDataBaseForm = new ImageDataBase();
+            imageDataBaseForm.Show();
         }
     }
 }
