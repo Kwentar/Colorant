@@ -4,7 +4,7 @@
         Title="База данных изображений" Height="600" Width="800" Background="#353535" >
     <DockPanel>
         <ToolBar Height="60" Name="imageToolbar" DockPanel.Dock="top" Background="#353535">
-            <Button Name="pbtPrevios" Margin="5" Click="pbtNext_Click">
+            <Button Name="pbtPrevios" Margin="5" Click="pbtPrevios_Click">
                 <Image Source="Icons\previos.png"/>
             </Button>
             <Button Name="pbtNext"  Margin="5" Click="pbtNext_Click">

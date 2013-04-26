@@ -13,6 +13,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Microsoft.Win32;
 using System.Diagnostics;
+using System.IO;
 
 namespace ColorInterface
 {
@@ -36,24 +37,49 @@ namespace ColorInterface
             Nullable<bool> resultDialog = colorizeImageDialog.ShowDialog();
             if (resultDialog == true)
             {
+                FileInfo colorInfo;
+                FileInfo grayInfo;
+                FileInfo sourceInfo;
                 string imageFileName = colorizeImageDialog.FileName;
-                Uri uriImage = new Uri(imageFileName);
-                BitmapImage colorizeImage;
+                grayInfo = new FileInfo(imageFileName);
                 try
                 {
                     Process pro = Process.Start("..\\..\\..\\x64\\Debug\\MainColorMode.exe", "-colorize \"" + imageFileName + "\"");
                     pro.WaitForExit();
                     string path = Environment.CurrentDirectory;
-                    colorizeImage = new BitmapImage(new Uri(string.Format("{0}\\result.jpg", path)));
+
+                    colorInfo = new FileInfo(string.Format("{0}\\result.jpg", path));
+                    sourceInfo = new FileInfo(string.Format("{0}\\source.jpg", path));
                     lbStatusLeft.Content = "Изображение успешно раскрашено";
                 }
                 catch
                 {
                     string path = Environment.CurrentDirectory;
-                    colorizeImage = new BitmapImage(new Uri(string.Format("{0}\\errorOpen.png", path)));
+                    colorInfo = new FileInfo(string.Format("{0}\\errorOpen.png", path));
+                    sourceInfo = new FileInfo(string.Format("{0}\\errorOpen.png", path));
                     lbStatusLeft.Content = "Не удалось открыть изображение";
                 }
-                resultImg.Source = colorizeImage;
+                MemoryStream msColorImage = new MemoryStream(System.IO.File.ReadAllBytes(colorInfo.FullName));
+                BitmapImage colorImage = new BitmapImage();
+                colorImage.BeginInit();
+                colorImage.StreamSource = msColorImage;
+                colorImage.EndInit();
+                resultImg.Source = colorImage;
+
+                MemoryStream msGreyImage = new MemoryStream(System.IO.File.ReadAllBytes(grayInfo.FullName));
+                BitmapImage greyImage = new BitmapImage();
+                greyImage.BeginInit();
+                greyImage.StreamSource = msGreyImage;
+                greyImage.EndInit();
+                targetImg.Source = greyImage;
+
+                MemoryStream msSourceImage = new MemoryStream(System.IO.File.ReadAllBytes(sourceInfo.FullName));
+                BitmapImage sourceImage = new BitmapImage();
+                sourceImage.BeginInit();
+                sourceImage.StreamSource = msSourceImage;
+                sourceImage.EndInit();
+                sourceImg.Source = sourceImage;
+
             }
         }
 

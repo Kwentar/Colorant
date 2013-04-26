@@ -10,13 +10,14 @@ public:
 
 	int addImage(double* signature);
 	int deleteImage(char * fileName);
+	int getImages(ImageInDB *images);
+	int getCountImages();
+
 
 private:
 	int getFileNumber();
-	int getImages(ImageInDB *images);
 	int writeImage(ImageInDB image);
 	int writeImages(ImageInDB * images,int count);
-	int getCountImages();
 
 };
 

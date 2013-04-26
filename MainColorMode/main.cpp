@@ -152,82 +152,67 @@ int DeleteImageFromBase(char* fileName)
 
 IplImage* ColorizeImage(char* fileName)
 {
-	SwapColor(fileName,"D:\\Education\\projects\\MainColorMode\\images\\очень похожий.jpg");
-	return 0;
-	IplImage *targetImage;
-	IplImage *sourceImage,*resizeSourceImage;
-	IplImage *labTarget, *labSource;
-	IplImage *l_planeTarget,*a_planeTarget,*b_planeTarget; 
-	IplImage *l_planeSource,*a_planeSource,*b_planeSource; 
 	char imgFileName[20],tmp[10];
-	Swatch swatches[500];
-
 	int res=GetColorImage(fileName);
+	printf("выбранное: %d\n",res);
 	strcpy(imgFileName,"base\\");
 	itoa(res,tmp,10);
 	strcat(imgFileName,tmp);
 	strcat(imgFileName,".png");
-	targetImage=cvLoadImage(fileName);
-	if(!targetImage)
-	{
-		ErrorMessage();
-		return NULL;
-	}
-	resizeSourceImage=cvCreateImage(cvGetSize(targetImage),8,3);
-	sourceImage=cvLoadImage(imgFileName);
-	if(!sourceImage)
-	{
-		ErrorMessage();
-		return NULL;
-	}
-	cvResize(sourceImage,resizeSourceImage);
-	labTarget=cvCreateImage(cvGetSize(targetImage),8,3);
-	l_planeTarget = cvCreateImage( cvGetSize(targetImage), 8, 1 );
-	a_planeTarget = cvCreateImage( cvGetSize(targetImage), 8, 1 );
-	b_planeTarget = cvCreateImage( cvGetSize(targetImage), 8, 1 );
-	cvCvtColor(targetImage,labTarget,CV_BGR2Lab);
-	cvCvtPixToPlane(labTarget,l_planeTarget,a_planeTarget,b_planeTarget,0);
-	labSource=cvCreateImage(cvGetSize(resizeSourceImage),8,3);
-	l_planeSource = cvCreateImage( cvGetSize(resizeSourceImage), 8, 1 );
-	a_planeSource = cvCreateImage( cvGetSize(resizeSourceImage), 8, 1 );
-	b_planeSource = cvCreateImage( cvGetSize(resizeSourceImage), 8, 1 );
-	cvCvtColor(resizeSourceImage,labSource,CV_BGR2Lab);
-	cvCvtPixToPlane(labSource,l_planeSource,a_planeSource,b_planeSource,0);
-	IplImage* lTar=cvCloneImage(l_planeSource);
-	int **mask;
-	mask = new int*[labTarget->height];
-	for(int i=0;i<labTarget->width;i++)
-	{
-		mask[i]=new int[labTarget->width];
-	}
-	for( int i=0; i<labTarget->height; i++ ) 
-	{
-		for( int j=0 ; j<labTarget->width; j++ ) 
-		{
-			mask[i][j]=0;
-		}
-	}
-	int countSwatch=GetSwatches(l_planeSource,swatches);
-	int count128source=0;
-	int count128target=0;
-	for( int y=0; y<labTarget->height; y++ ) 
-	{
-		uchar* ptrSourcea = (uchar*) (a_planeSource->imageData) + (y) * a_planeSource->widthStep;
-		for( int x=0; x<labTarget->width; x++ ) 
-		{
-			if(ptrSourcea[x]==128)
-			{
-				count128source++;
-			}
-		}
-	}
-	printf("128 source: %d\n",count128source);
+	SwapColor(fileName,imgFileName);
+	return 0;
+}
 
-	for( int y=0; y<labTarget->height; y++ ) 
+IplImage* SwapColor(char* fileNameTarget, char* fileNameSource)
+{
+	IplImage *targetImg,*sourceImg;
+	IplImage *labTarget,*labSource;
+	IplImage *l_planeTargetNorm,*l_planeSourceNorm;
+	IplImage *resizeSourceImg;
+	IplImage *l_planeTarget=0,*a_planeTarget=0,*b_planeTarget=0;
+	IplImage *l_planeSource=0,*a_planeSource=0,*b_planeSource=0;
+	Swatch swatches[GRID_SIZE*GRID_SIZE*2];
+	int countSwatch;
+	//load images
+	targetImg=cvLoadImage(fileNameTarget);
+	sourceImg=cvLoadImage(fileNameSource);
+	if(!targetImg || !sourceImg)
 	{
-		uchar* ptrTargeta = (uchar*) (a_planeTarget->imageData) + y * a_planeTarget->widthStep;
-		uchar* ptrTargetb = (uchar*) (b_planeTarget->imageData) + y * b_planeTarget->widthStep;
-		for( int x=0; x<labTarget->width; x++ ) 
+		ErrorMessage();
+		return NULL;
+	}
+	cvSaveImage("source.jpg",sourceImg);
+	//resize source image
+	resizeSourceImg=cvCreateImage(cvGetSize(targetImg),sourceImg->depth,sourceImg->nChannels);
+	cvResize(sourceImg,resizeSourceImg);
+	//get channels both images
+	labTarget=cvCreateImage(cvGetSize(targetImg),8,3);
+	l_planeTarget=cvCreateImage(cvGetSize(targetImg),8,1);
+	a_planeTarget=cvCreateImage(cvGetSize(targetImg),8,1);
+	b_planeTarget=cvCreateImage(cvGetSize(targetImg),8,1);
+	cvCvtColor(targetImg,labTarget,CV_BGR2Lab);
+	cvCvtPixToPlane(labTarget,l_planeTarget,a_planeTarget,b_planeTarget,0);
+
+	labSource=cvCreateImage(cvGetSize(resizeSourceImg),8,3);
+	l_planeSource=cvCreateImage(cvGetSize(resizeSourceImg),8,1);
+	a_planeSource=cvCreateImage(cvGetSize(resizeSourceImg),8,1);
+	b_planeSource=cvCreateImage(cvGetSize(resizeSourceImg),8,1);
+	cvCvtColor(resizeSourceImg,labSource,CV_BGR2Lab);
+	cvCvtPixToPlane(labSource,l_planeSource,a_planeSource,b_planeSource,0);
+
+	//Equalization images
+	l_planeSourceNorm=cvCreateImage(cvGetSize(l_planeSource),8,1);
+	l_planeTargetNorm=cvCreateImage(cvGetSize(l_planeTarget),8,1);
+	cvEqualizeHist(l_planeSource,l_planeSourceNorm);
+	cvEqualizeHist(l_planeTarget,l_planeTargetNorm);
+
+	//get swatches
+	countSwatch=GetSwatches(l_planeSourceNorm,swatches);
+
+	//colorize
+	for(int y=0;y<l_planeTarget->height;y++)
+	{
+		for(int x=0;x<l_planeTarget->width;x++)
 		{
 			double maxS=0.1;
 			double maxXmid=0.1;
@@ -243,14 +228,14 @@ IplImage* ColorizeImage(char* fileName)
 				}
 			}
 
+			//get MO and dispers
 			double XmidT=0;
 			double St=0;
 			for(int  m=0;m<SIZE_AREA;m++)
 			{
 				for(int p=0;p<SIZE_AREA;p++)
 				{
-					uchar *ptrTargetl=(uchar*) (l_planeTarget->imageData) + (y+m) * l_planeSource->widthStep;
-					XmidT+=ptrTargetl[x+p];
+					XmidT+=Pixel(l_planeTargetNorm,y+m,x+p);
 				}
 			}
 			XmidT/=SIZE_AREA*SIZE_AREA;
@@ -258,12 +243,12 @@ IplImage* ColorizeImage(char* fileName)
 			{
 				for(int p=0;p<=SIZE_AREA;p++)
 				{
-					uchar *ptrTargetl=(uchar*) (l_planeTarget->imageData) + (y+m) * l_planeSource->widthStep;
-					St+=pow(ptrTargetl[x+p]-XmidT,2);
+					St+=pow(Pixel(l_planeTargetNorm,y+m,x+p)-XmidT,2);
 				}
 			}
 			St/=SIZE_AREA*SIZE_AREA-1;
 			St=sqrt(St);
+
 			if(St>maxS)
 			{
 				maxS=St;
@@ -274,162 +259,47 @@ IplImage* ColorizeImage(char* fileName)
 				maxXmid=XmidT;
 			}
 			XmidT/=maxXmid;
-			Swatch newSwatches[500];
+			Swatch newSw[GRID_SIZE*GRID_SIZE*2];
 			for(int k=0;k<countSwatch;k++)
 			{
-				newSwatches[k].s=swatches[k].s/maxS;
-				newSwatches[k].Xmid=swatches[k].Xmid/maxXmid;
-				newSwatches[k].x=swatches[k].x;
-				newSwatches[k].y=swatches[k].y;
+				newSw[k].s=swatches[k].s/maxS;
+				newSw[k].Xmid=swatches[k].Xmid/maxXmid;
+				newSw[k].x=swatches[k].x;
+				newSw[k].y=swatches[k].y;
 			}
+
+			double minDistance=20;
 			int indexSwatch=0;
-			double minDistance=2;
 			for(int k=0;k<countSwatch;k++)
 			{
-				
-				if(abs(newSwatches[k].s-St) <minDistance)
+				if(minDistance>=abs(newSw[k].Xmid-XmidT)+abs(newSw[k].s-St))
 				{
-					minDistance=abs(newSwatches[k].s-St);
+					minDistance=abs(newSw[k].Xmid-XmidT)+abs(newSw[k].s-St);
 					indexSwatch=k;
 				}
 			}
-			if(minDistance<0.01)
-			{
-				for(int m=0;m<SIZE_AREA;m++)
-				{
-					//int m=0;
-					uchar* ptrSourcea = (uchar*) (a_planeSource->imageData) + (newSwatches[indexSwatch].y+m) * a_planeSource->widthStep;
-					uchar* ptrSourceb = (uchar*) (b_planeSource->imageData) + (newSwatches[indexSwatch].y+m) * b_planeSource->widthStep;
-					uchar* ptrTargeta = (uchar*) (a_planeTarget->imageData) + (y+m) * a_planeTarget->widthStep;
-					uchar* ptrTargetb = (uchar*) (b_planeTarget->imageData) + (y+m) * b_planeTarget->widthStep;
-					for(int p=0;p<=SIZE_AREA;p++)
-				 	{
- 						mask[y+m][x+p]=1;
-						ptrTargeta[x+p]=ptrSourcea[newSwatches[indexSwatch].x+p];
-						ptrTargetb[x+p]=ptrSourceb[newSwatches[indexSwatch].x+p];
-						if(ptrTargeta[x]==128 && ptrTargetb[x]==128)
-						{
-							count128target++;
-						}
-					}
-				}
-			}
+
+			Pixel(a_planeTarget,y,x)=Pixel(a_planeSource,newSw[indexSwatch].y,newSw[indexSwatch].x);
+			Pixel(b_planeTarget,y,x)=Pixel(b_planeSource,newSw[indexSwatch].y,newSw[indexSwatch].x);
 		}
 	}
-	printf("128 target: %d\n",count128target );
-	int countBefore=0;
-	for( int i=0; i<labTarget->height; i++ ) 
-	{
-		for( int j=0 ; j<labTarget->width; j++ ) 
-		{
-			if(!mask[i][j])
-			{
-				countBefore++;
-			}
-		}
-	}
-	printf("\nBefore: %d\n",countBefore);
-	int countSom=0;
-	int x=l_planeTarget->widthStep;
-	int indexX,indexY;
-	uchar* ptrTargetl = (uchar*) (l_planeTarget->imageData);
-	uchar* ptrTargeta = (uchar*) (a_planeTarget->imageData);
-	uchar* ptrTargetb = (uchar*) (b_planeTarget->imageData);
-	for(int param=0;param<0;param++)
-	{
-		for( int i=0; i<labTarget->height; i++ ) 
-		{
-			for( int j=0 ; j<labTarget->width; j++ ) 
-			{
-				if(mask[i][j]==0 && i>=2 && j>=2 && (ptrTargeta+x*i)[j]==128 && (ptrTargetb+x*i)[j]==128)
-				{
-					bool findIt=false;
-					int distance;
-					for(int k=-2;k<=2;k++)
-					{
-						distance=50;
-						for(int l=-2;l<=2;l++)
-						{
-							if(mask[i+k][j+l]==1)
-							{
-								int tmpDist=abs((ptrTargetl+x*i)[j]-(ptrTargetl+x*(i-1))[j-1]);
-								if(tmpDist<distance)
-								{
-									distance=tmpDist;
-									indexX=i+k;
-									indexY=j+l;
-									findIt=true;
-								}
-							}
-						}
-					}
-					if(findIt && distance<40)
-					{
-						mask[i][j]=2;
-						(ptrTargeta+x*i)[j]=(ptrTargeta+x*indexX)[indexY];
-						(ptrTargetb+x*i)[j]=(ptrTargetb+x*indexX)[indexY];
-						countSom++;
-					}
-				}
-			}
-		}
-		for( int i=0; i<labTarget->height; i++ ) 
-		{
-			for( int j=0 ; j<labTarget->width; j++ ) 
-			{
-				if(mask[i][j]==2)
-				{
-					mask[i][j]=1;
-				}
-			}
-		}
-	}
-	int countAfter=0;
-	for( int i=0; i<labTarget->height; i++ ) 
-	{
-		for( int j=0 ; j<labTarget->width; j++ ) 
-		{
-			if(!mask[i][j])
-			{
-				countAfter++;
-			}
-		}
-	}
-	printf("Count: %d\n",countSom);
-	printf("After: %d\n",countAfter);
-	cvNamedWindow("lt");
-	cvShowImage("lt",l_planeTarget);
-	cvNamedWindow("ls");
-	cvShowImage("ls",l_planeSource);
-	cvNamedWindow("at");
-	cvShowImage("at",a_planeTarget);
-	cvNamedWindow("bt");
-	cvShowImage("bt",b_planeTarget);
-	cvNamedWindow("as");
-	cvShowImage("as",a_planeSource);
-	cvNamedWindow("bs");
-	cvShowImage("bs",b_planeSource);
+
 	cvCvtPlaneToPix(l_planeTarget,a_planeTarget,b_planeTarget,0,labTarget);
-	cvCvtColor(labTarget,targetImage,CV_Lab2BGR);
-	cvNamedWindow("colorImage");
-	cvShowImage("colorImage",targetImage);
-	cvSaveImage("result.jpg",targetImage);
-}
+	cvCvtColor(labTarget,targetImg,CV_Lab2BGR);
 
+	cvSaveImage("result.jpg",targetImg);
 
-IplImage* SwapColor(char* fileNameTarget, char* fileNameSource)
-{
-	IplImage* targetImg,*sourceImg;
 	return targetImg;
 }
+
 
 int GetSwatches(IplImage* img,Swatch *swatches)
 {
 	CvRNG rng = cvRNG(0xffffffff);
 	int index=0;
-	for(int y=0;y<img->height-img->height/20-SIZE_AREA;y+=(double)(img->height/20))
+	for(int y=0;y<img->height-img->height/GRID_SIZE-SIZE_AREA;y+=(double)(img->height/GRID_SIZE))
 	{
-		for(int x=0;x<img->width-img->width/20-SIZE_AREA;x+=(double)(img->width/20))
+		for(int x=0;x<img->width-img->width/GRID_SIZE-SIZE_AREA;x+=(double)(img->width/GRID_SIZE))
 		{
 			swatches[index].x =x+ cvRandInt(&rng)%(img->width/20);
 			swatches[index].y =y+ cvRandInt(&rng)%(img->height/20);
@@ -437,19 +307,17 @@ int GetSwatches(IplImage* img,Swatch *swatches)
 			swatches[index].s=0;
 			for(int m=0;m<SIZE_AREA;m++)
 			{
-				uchar *ptrSourcel=(uchar*) (img->imageData) + (swatches[index].y+m) * img->widthStep;
 				for(int p=0;p<SIZE_AREA;p++)
 				{
-					swatches[index].Xmid+=ptrSourcel[swatches[index].x+p];
+					swatches[index].Xmid+=Pixel(img,y+m,x+p);
 				}
 			}
 			swatches[index].Xmid/=SIZE_AREA*SIZE_AREA;
 			for(int m=0;m<SIZE_AREA;m++)
 			{
-				uchar *ptrSourcel=(uchar*) (img->imageData) + (swatches[index].y+m) * img->widthStep;
 				for(int p=0;p<SIZE_AREA;p++)
 				{
-					swatches[index].s+=pow(ptrSourcel[swatches[index].x+p]-swatches[index].Xmid,2.0);
+					swatches[index].s+=pow(Pixel(img,y+m,x+p)-swatches[index].Xmid,2.0);
 				}
 			}
 			swatches[index].s/=SIZE_AREA*SIZE_AREA-1;
@@ -469,42 +337,27 @@ int GetColorImage(char *fileName)
 	double imgSignature[HIST_SIZE];
 	double imgSignatureBD[HIST_SIZE];
 	int result=0;
+	double resCompare=-1;
 	IplImage *img;
 	HANDLE hFile;
-	double** signatures; 
     img=cvLoadImage(fileName);
 	if(!img)
 	{
 		ErrorMessage(); 
 		return NULL;
 	}
-	hFile=CreateFileA("base\\base.dat",GENERIC_READ,NULL,NULL,OPEN_ALWAYS,FILE_ATTRIBUTE_NORMAL,NULL);
-	if(hFile==INVALID_HANDLE_VALUE) //файл
-	{
-		ErrorMessage(); 
-		return NULL;
-	}
-	ReadFile(hFile,&nImageCount,sizeof(nImageCount),&nBytesRead,NULL);
-	printf("\n%d\n",nImageCount);
-	signatures=new double*[nImageCount];
-	for(int i=0;i<nImageCount;i++)
-	{
-		signatures[i]=new double[HIST_SIZE];
-		for(int j=0;j<HIST_SIZE;j++)
-		{
-			double currentBin;
- 			ReadFile(hFile,&currentBin,sizeof(currentBin),&nBytesRead,NULL);
-			signatures[i][j]=currentBin;
-		}
-	}
-	double resCompare=0;
+	ImageDataBase _db;
+	ImageInDB* images;
+	nImageCount=_db.getCountImages();
+	images=new ImageInDB[nImageCount];
+	_db.getImages(images);
 	GetSignature(img,imgSignature);
 	for(int i=0;i<nImageCount;i++)
 	{
-		printf("%d: %.4lf\n",i,CompareSigntatures(imgSignature,signatures[i]));
-		if(resCompare<CompareSigntatures(imgSignature,signatures[i]))
+		printf("%d: %.4lf\n",i,CompareSigntatures(imgSignature,images[i].signature));
+		if(resCompare<CompareSigntatures(imgSignature,images[i].signature))
 		{
-			resCompare=CompareSigntatures(imgSignature,signatures[i]);
+			resCompare=CompareSigntatures(imgSignature,images[i].signature);
 			result=i;
 		}
 	}
